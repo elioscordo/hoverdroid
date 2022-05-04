@@ -1,0 +1,65 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/joystick"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <View
+        android:id="@+id/axis_y"
+        android:layout_centerHorizontal="true"
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary" />
+    <TextView
+        android:id="@+id/legend_y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/axis_y"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginLeft="10dp"
+        android:text = "Speed"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+    <View
+        android:id="@+id/axis_x"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="250dp"
+        />
+    <TextView
+        android:id="@+id/legend_x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/axis_x"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentRight="true"
+        android:text = "Steer"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+    <Button
+        android:id="@+id/draggable"
+        android:layout_gravity="center|center"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/round_button"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="200dp"
+        android:text=""
+        android:textColor="#fff" />
+    <TextView
+        android:id="@+id/logger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/colorPrimary"
+        android:text = "text text 1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+</RelativeLayout>

@@ -1,0 +1,94 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/joystick"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginBottom="20dp"
+    >
+    <RelativeLayout
+        android:id="@+id/layout_steer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/lever_steer"
+            android:layout_gravity="center|center"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/round_button"
+            android:layout_centerInParent="true"
+            android:text=""
+            android:textColor="#fff" />
+        <View
+            android:id="@+id/axis_x"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/colorPrimary"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center|center"
+            />
+        <TextView
+            android:id="@+id/legend_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
+            android:text = "Steer"
+            android:layout_below="@+id/axis_x"
+            android:layout_centerVertical="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_gravity="center|center"
+            />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_speed"
+        android:layout_below="@+id/layout_steer"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="40dp"
+        >
+        <TextView
+            android:id="@+id/legend_y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/axis_y"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginLeft="20dp"
+            android:layout_alignParentBottom="true"
+            android:text = "Speed"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            />
+
+        <View
+            android:id="@+id/axis_y"
+            android:layout_centerHorizontal="true"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            />
+
+        <Button
+            android:id="@+id/lever_speed"
+            android:layout_gravity="center|center"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/round_button"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
+            android:text=""
+            android:textColor="#fff" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/logger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/colorPrimary"
+        android:text = "0,0"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+</RelativeLayout>

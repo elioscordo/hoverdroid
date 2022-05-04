@@ -1,0 +1,4 @@
+Amazon Chime SDK for Android (amazon-chime-sdk.aar)
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. 
+
+Provided as AWS Content and subject to the AWS Customer Agreement and any other agreement with AWS governing your use of AWS services.

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">HoverDroid</string>
+    <string name="devices">USB Devices</string>
+    <string name="refresh">Refresh</string>
+    <string name="close">Close</string>
+</resources>
