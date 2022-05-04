@@ -8,6 +8,10 @@ Android app companion for flashed hoverboards in UART mode.
 
 
 # Changelog
+4 May 2022
+1. Click on the header to change controller (Joystick or Lever)
+2. Add Amazon Chime lib 
+
 13 Apr 2022
 1. Joystick Fragment
 2. Serial Connection
