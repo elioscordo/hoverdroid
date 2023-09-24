@@ -34,3 +34,12 @@ Amazon Chime or other Webrtc solutions can be explorer in order to drive the hov
 
 ## Autonomous Control
 The new android phone have a built in depth depth camera. Is it feasible to build such a system ?
+
+
+## Notes
+Wireless debug
+adb tcpip 5555
+Get the device IP from wifi details of the phone
+adb connect 192.168.1.133:5555
+
+To be dev in xiaomi tap MIU version

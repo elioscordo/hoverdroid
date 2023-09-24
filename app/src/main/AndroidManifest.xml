@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="elio.hoverdroid">
+    package="com.hoverdroid">
+    <!-- If your app derives location information from Wi-Fi APIs,
+         don't include the "usesPermissionFlags" attribute. -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+    android:usesPermissionFlags="neverForLocation" />
+    <!-- If any feature in your app relies on precise location information,
+         don't include the "maxSdkVersion" attribute. -->
 
+    <uses-permission
+        android:required="true"
+        android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission
+        android:required="true"
+        android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:required="true"
+        android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,6 +31,8 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,11 +44,8 @@
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
-
-
-
-
         </activity>
+        <service android:name="com.wifi.WifiDirectService"/>
     </application>
 
 </manifest>
