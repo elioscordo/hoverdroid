@@ -8,6 +8,10 @@ Android app companion for flashed hoverboards in UART mode.
 
 
 # Changelog
+4 May 2022
+1. Click on the header to change controller (Joystick or Lever)
+2. Add Amazon Chime lib 
+
 13 Apr 2022
 1. Joystick Fragment
 2. Serial Connection
@@ -34,6 +38,7 @@ Amazon Chime or other Webrtc solutions can be explorer in order to drive the hov
 
 ## Autonomous Control
 The new android phone have a built in depth depth camera. Is it feasible to build such a system ?
+<<<<<<< HEAD
 
 
 ## Notes
@@ -43,3 +48,5 @@ Get the device IP from wifi details of the phone
 adb connect 192.168.1.133:5555
 
 To be dev in xiaomi tap MIU version
+=======
+>>>>>>> 13cf253abbc7c41f1eeb5c8fabb2bc6e0f7a9589
