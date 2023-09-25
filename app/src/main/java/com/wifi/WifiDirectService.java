@@ -24,6 +24,7 @@ import com.core.TaskObserver;
 import com.wifi.listeners.SocketListener;
 import com.wifi.utils.MessageUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WifiDirectService extends Service implements TaskObserved, WifiP2pManager.ChannelListener
@@ -60,7 +61,7 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
     private TaskObserver observer;
 
 
-    public List<WifiP2pDevice> deviceList;
+    public List<WifiP2pDevice> deviceList = new ArrayList<WifiP2pDevice>();
 
     @Override
     public void setObserver(TaskObserver observer) {
@@ -204,15 +205,18 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
         return binder;
     }
 
-    @SuppressLint("MissingPermission")
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        registerReceiver(receiver, intentFilter);
+        return super.onStartCommand(intent, flags, startId);
+    }
 
+    @SuppressLint("MissingPermission")
+    public void initWifiDirect(){
+        registerReceiver(receiver, intentFilter);
         if (manager != null) {
             manager.discoverPeers(channel, this);
         }
-        return super.onStartCommand(intent, flags, startId);
     }
 
 

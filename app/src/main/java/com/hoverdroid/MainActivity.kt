@@ -66,11 +66,6 @@ class MainActivity() : AppCompatActivity(),
     private lateinit var  wifiDirectService: WifiDirectService;
     private var isBind:Boolean = false;
 
-    private lateinit var channel: WifiP2pManager.Channel
-    private lateinit var manager: WifiP2pManager
-    private lateinit var receiver: WiFiDirectBroadcastReceiver
-    private lateinit var transfer: SocketTransfer
-    // 0 disconnected, 1 server, 2 client (clients sends, server receives)
     private var wifiState: Int = 0
 
     private val intentFilter = IntentFilter()
@@ -95,7 +90,8 @@ class MainActivity() : AppCompatActivity(),
     override fun onServiceConnected(name: ComponentName?, service: IBinder) {
         wifiDirectService = (service as WifiDirectService.ServiceBinder).service
         wifiDirectService.setObserver(this);
-        wifiDirectService.startMessageReceiver()
+        wifiDirectService.initWifiDirect();
+        //wifiDirectService.startMessageReceiver()
         isBind = true
     }
 
@@ -219,7 +215,6 @@ class MainActivity() : AppCompatActivity(),
                                 .replace(R.id.controller, leversFragment!!, "controller").commit()
                         }
                         CONTROLLER_WIFI -> {
-                            wifiDiscovery()
                             supportFragmentManager.beginTransaction()
                                 .replace(R.id.controller, wifiFragment!!, "controller").commit()
                             refreshWifiFragment()
@@ -260,9 +255,6 @@ class MainActivity() : AppCompatActivity(),
                 wifiDirectService.deviceList
             )
         }
-        if (receiver.wifiDirectListener  != null) {
-            manager.requestConnectionInfo(channel, receiver.wifiDirectListener)
-        }
     }
     private val locationPermissionRequest = registerForActivityResult(RequestMultiplePermissions(),
         ActivityResultCallback<Map<String?, Boolean?>> { result: Map<String?, Boolean?> ->
@@ -300,17 +292,7 @@ class MainActivity() : AppCompatActivity(),
                 )
             )
         }
-        manager.discoverPeers(
-            channel,
-            object : WifiP2pManager.ActionListener {
-                override fun onSuccess() {
-                    Log.d("WifiP2pManager", "onSuccess")
-                }
 
-                override fun onFailure(reasonCode: Int) {
-                    Log.d("WifiP2pManager", "onFailure")
-                }
-            })
     }
     override fun onBackStackChanged() {
 
@@ -354,12 +336,6 @@ class MainActivity() : AppCompatActivity(),
     /** register the BroadcastReceiver with the intent values to be matched  */
     public override fun onResume() {
         super.onResume()
-        receiver = WiFiDirectBroadcastReceiver(
-            this.channel,
-            this.manager
-        )
-        receiver.setObserver(this);
-        registerReceiver(receiver, intentFilter)
     }
 
     override fun onDestroy() {
@@ -370,7 +346,6 @@ class MainActivity() : AppCompatActivity(),
 
     public override fun onPause() {
         super.onPause()
-        unregisterReceiver(receiver)
     }
 
     override fun onReceiver(response: String?) {
