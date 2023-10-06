@@ -50,6 +50,9 @@ public class WifiDirectFragment extends Fragment implements TaskObserved {
         deviceListView.setOnItemClickListener(new ListViewOnClickItem());
         deviceAdapter = new DeviceAdapter(getActivity(), this.deviceList);
         deviceListView.setAdapter(deviceAdapter);
+        if (this.deviceList != null) {
+            deviceAdapter.refreshList(this.deviceList);
+        }
         debugTextView = canvas.findViewById(R.id.debugArea);
         // debugTextView.setVisibility(View.INVISIBLE);
         debugTextView.setSingleLine(false);

@@ -4,30 +4,27 @@ package com.hoverdroid
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.core.PermissionManager
 import com.core.SerialDevice
 import com.core.TaskObserver
 import com.fragment.*
 import com.hoverboard.HoverboardCommand
 import com.hoverboard.HoverboardManager
-import com.wifi.SocketTransfer
-import com.wifi.WiFiDirectBroadcastReceiver
 import com.wifi.WifiDirectService
 import com.wifi.listeners.SocketListener
 import com.wifi.listeners.WifiDirectListener
+import com.wifi.utils.Constants
 import com.wifi.utils.MessageUtils
 
 
@@ -67,8 +64,10 @@ class MainActivity() : AppCompatActivity(),
     private var isBind:Boolean = false;
 
     private var wifiState: Int = 0
+    private var wifiServiceState: Int = 0
 
     private val intentFilter = IntentFilter()
+    private lateinit var permissionManager:PermissionManager;
 
 
     /** Start and bind service.  */
@@ -90,11 +89,20 @@ class MainActivity() : AppCompatActivity(),
     override fun onServiceConnected(name: ComponentName?, service: IBinder) {
         wifiDirectService = (service as WifiDirectService.ServiceBinder).service
         wifiDirectService.setObserver(this);
-        wifiDirectService.initWifiDirect();
-        //wifiDirectService.startMessageReceiver()
         isBind = true
+        initWifi()
     }
-
+    fun initWifi(){
+        if (wifiServiceState == 0) {
+            if (permissionManager.checkFineLocationPermission(this)) {
+                wifiDirectService.initWifiDirect();
+            } else {
+                permissionManager.requestFineLocationPermission(this)
+            }
+        }else {
+            wifiDirectService.discoverPeers()
+        }
+    }
     override fun onServiceDisconnected(name: ComponentName?) {
         wifiDirectService.setObserver(null);
         wifiDirectService.stopMessageReceiver()
@@ -151,11 +159,10 @@ class MainActivity() : AppCompatActivity(),
         if (savedInstanceState == null) supportFragmentManager.beginTransaction()
             .add(R.id.header, headerFragment!!, "header").commit() else onBackStackChanged()
 
-        maybeEnableArButton()
-
         headerFragment!!.setAvailableHeaders(controllers);
         headerFragment!!.setHeader(CONTROLLER_JOYSTICK)
-
+        permissionManager = PermissionManager();
+        permissionManager.setObserver(this);
         // start
         startAndBindService()
 
@@ -217,62 +224,51 @@ class MainActivity() : AppCompatActivity(),
                         CONTROLLER_WIFI -> {
                             supportFragmentManager.beginTransaction()
                                 .replace(R.id.controller, wifiFragment!!, "controller").commit()
-                            refreshWifiFragment()
+                            initWifi()
+
                         }
                     }
                 }
             }
-            WifiDirectService.EVENT_WIFI_PEERS_AVAILABLE -> {
-                refreshWifiFragment()
+            Constants.EVENT_WIFI_PEERS_AVAILABLE -> {
+                wifiFragment?.addDebugMessage("Peers available %d".format(wifiDirectService.deviceList.size))
+                wifiFragment?.setList(
+                    wifiDirectService.deviceList
+                )
             }
-            WifiDirectService.EVENT_WIFI_CONNECTION_OWNER -> {
+            Constants.EVENT_WIFI_CONNECTION_OWNER -> {
 
                 // set port and start server
                 wifiState = 1
                 wifiFragment?.addDebugMessage("Connected as Owner")
             }
-            WifiDirectListener.EVENT_WIFI_CONNECTION_CLIENT -> {
-                    wifiFragment?.addDebugMessage("Connected as Client")
-                    wifiState = 2
+            Constants.EVENT_WIFI_CONNECTION_CLIENT -> {
+                wifiFragment?.addDebugMessage("Connected as Client")
+                wifiState = 2
             }
             WifiDirectFragment.EVENT_WIFI_DIRECT_CONNECT -> {
                 wifiFragment?.addDebugMessage("Connection Attempt")
             }
-            WifiDirectListener.EVENT_WIFI_CONNECTION_SUCCESS -> {
+            Constants.EVENT_WIFI_CONNECTION_SUCCESS -> {
                 wifiFragment?.addDebugMessage("Connection Success")
+                wifiServiceState = 1
+                wifiDirectService.discoverPeers()
             }
-            WifiDirectListener.EVENT_WIFI_CONNECTION_FAILURE -> {
+            Constants.EVENT_WIFI_CONNECTION_FAILURE -> {
                 wifiFragment?.addDebugMessage("Connection Failure")
             }
-        }
-    }
 
-
-    private fun refreshWifiFragment() {
-        if (wifiDirectService.deviceList != null) {
-            wifiFragment?.addDebugMessage("Peers available %d".format(wifiDirectService.deviceList.size))
-            wifiFragment?.setList(
-                wifiDirectService.deviceList
-            )
-        }
-    }
-    private val locationPermissionRequest = registerForActivityResult(RequestMultiplePermissions(),
-        ActivityResultCallback<Map<String?, Boolean?>> { result: Map<String?, Boolean?> ->
-            val fineLocationGranted = result.getOrDefault(
-                Manifest.permission.ACCESS_FINE_LOCATION, false
-            )
-            val coarseLocationGranted = result.getOrDefault(
-                Manifest.permission.ACCESS_COARSE_LOCATION, false
-            )
-            if (fineLocationGranted != null && fineLocationGranted) {
-                // Precise location access granted.
-            } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                // Only approximate location access granted.
-            } else {
-                // No location access granted.
+            PermissionManager.EVENT_PERMISSION_GRANTED -> {
+                if (arg is Int) {
+                    if (arg == PermissionManager.ACCESS_FINE_LOCATION_CODE) {
+                        wifiDirectService.initWifiDirect();
+                    }
+                }
             }
         }
-    )
+    }
+
+
 
     constructor(parcel: Parcel) : this() {
         PORT = parcel.readInt()
@@ -280,20 +276,6 @@ class MainActivity() : AppCompatActivity(),
     }
 
 
-    private fun wifiDiscovery() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            locationPermissionRequest.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                )
-            )
-        }
-
-    }
     override fun onBackStackChanged() {
 
     }
@@ -314,24 +296,7 @@ class MainActivity() : AppCompatActivity(),
         }
         super.onNewIntent(intent)
     }
-    fun maybeEnableArButton() : Boolean {
-        /*
-        val availability = ArCoreApk.getInstance().checkAvailability(this)
-        if (availability.isTransient) {
-            // Continue to query availability at 5Hz while compatibility is checked in the background.
-            Handler().postDelayed({
-                maybeEnableArButton()
-            }, 200)
-        }
-        val isSupported: Boolean
-        isSupported = if (availability.isSupported) {
-            true
-        } else { // The device is unsupported or unknown.
-            true
-        }
-        */
-        return true
-    }
+
 
     /** register the BroadcastReceiver with the intent values to be matched  */
     public override fun onResume() {

@@ -34,7 +34,6 @@ public class DeviceAdapter extends ArrayAdapter<WifiP2pDevice> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_device, parent, false);
 
         }
-
         TextView name = (TextView)convertView.findViewById(R.id.devicename);
         TextView address = (TextView)convertView.findViewById(R.id.devicetype);
 

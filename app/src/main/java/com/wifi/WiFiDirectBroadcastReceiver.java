@@ -1,6 +1,7 @@
 package com.wifi;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,17 +43,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Ta
         this.manager = manager;
         wifiDirectListener = new WifiDirectListener();
     }
+    @SuppressLint("MissingPermission")
     private void requestPeers(){
-        if (ActivityCompat.checkSelfPermission( (Activity)this.observer, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
         manager.requestPeers(channel, wifiDirectListener);
     }
     @Override
@@ -71,7 +63,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver implements Ta
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             requestPeers();
             } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-            Log.e(TAG, "P2P CONNECTION CHANGED");NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(
+            Log.e(TAG, "P2P CONNECTION CHANGED");
+            NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_NETWORK_INFO);
             if(networkInfo.isConnected()) {
                 // We are connected with the other device, request connection
