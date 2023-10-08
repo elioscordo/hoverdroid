@@ -48,12 +48,12 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
 
     private WifiP2pManager.Channel channel;
     private WifiP2pManager manager;
-    private WifiP2PReceiver receiver;
+    private WifiDirectReceiver receiver;
     private SocketTransfer transfer;
     private TaskObserver observer;
 
 
-    public List<WifiP2pDevice> deviceList = new ArrayList<WifiP2pDevice>();
+    public List<WifiP2pDevice> deviceList;
 
     @Override
     public void setObserver(TaskObserver observer) {
@@ -72,7 +72,7 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
         channel = manager.initialize(getApplicationContext(), Looper.getMainLooper(), null);
 
         // register receiver
-        receiver = new WifiP2PReceiver(manager,channel,this,this);
+        receiver = new WifiDirectReceiver(manager,channel,this,this);
 
         receiver.setObserver(observer);
         // socket
@@ -87,11 +87,7 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
     }
 
     @SuppressLint("MissingPermission")
-    public void connectToDevice(WifiP2pDevice device) {
-        WifiP2pConfig config = new WifiP2pConfig();
-        config.deviceAddress = device.deviceAddress;
-        config.wps.setup = WpsInfo.PBC;
-        config.groupOwnerIntent = 0;
+    public void connectToDevice(WifiP2pConfig config) {
         manager.connect(channel, config, this);
     }
 
@@ -109,11 +105,12 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
             Log.e(TAG, "GroupFormed, isGroupeOwner");
             observer.onResults(Constants.EVENT_WIFI_CONNECTION_OWNER, null);
             transfer.setPort(PORT).startServer();
-
+            transfer.startMessageReceiver();
         } else if (info.groupFormed) {
             Log.e(TAG, "GroupFormed");
             transfer.setPort(PORT).setAddress(info.groupOwnerAddress.getHostAddress())
                     .startClient();
+            transfer.startMessageReceiver();
             observer.onResults(Constants.EVENT_WIFI_CONNECTION_CLIENT, null);
         }
     }
@@ -121,6 +118,9 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peers) {
         // clean devices list
+        if (deviceList == null) {
+            deviceList = new ArrayList<>();
+        }
         if (!deviceList.isEmpty()) {
             deviceList.clear();
         }
@@ -208,11 +208,11 @@ public class WifiDirectService extends Service implements TaskObserved, WifiP2pM
         receiver.setObserver(this.observer);
         registerReceiver(receiver, intentFilter);
         manager.discoverPeers(channel, this);
-
     }
+
     @SuppressLint("MissingPermission")
     public void discoverPeers() {
-        manager.requestPeers(channel, this);
+        manager.discoverPeers(channel, this);
     }
 
 

@@ -24,8 +24,7 @@ public class DeviceAdapter extends ArrayAdapter<WifiP2pDevice> {
     }
 
     public void refreshList(List<WifiP2pDevice> deviceList){
-        this.mDeviceList.clear();
-        this.mDeviceList.addAll(deviceList);
+        this.mDeviceList = deviceList;
     }
 
     @Override
@@ -58,6 +57,7 @@ public class DeviceAdapter extends ArrayAdapter<WifiP2pDevice> {
 
     @Override
     public int getCount() {
+
         return mDeviceList.size();
     }
 

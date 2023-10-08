@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.core.TaskObserved;
 import com.core.TaskObserver;
 import com.hoverboard.HoverboardCommand;
+import com.hoverdroid.MainActivity;
 import com.hoverdroid.R;
 import com.wifi.DeviceAdapter;
 
@@ -56,11 +57,26 @@ public class WifiDirectFragment extends Fragment implements TaskObserved {
         debugTextView = canvas.findViewById(R.id.debugArea);
         // debugTextView.setVisibility(View.INVISIBLE);
         debugTextView.setSingleLine(false);
-        for (String debugMessage: debugMessages) {
-            debugTextView.append(debugMessage);
-        }
+        debugTextView.setOnClickListener(debugOnClickListener);
+        syncDebugView();
         return canvas;
     }
+    private View.OnClickListener debugOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Options");
+            builder.setItems(new String[]{"Restart Discovery"}
+                    , (dialog, which) -> {
+                        if (which == 0) {
+                            ((MainActivity)observer).wifiDirectService.discoverPeers();
+                        }
+                    }
+            );
+            builder.create();
+            builder.show();
+        }
+    };
 
     public void setList(List<WifiP2pDevice> deviceList) {
         this.deviceList = deviceList;
@@ -70,16 +86,21 @@ public class WifiDirectFragment extends Fragment implements TaskObserved {
     }
 
     public void addDebugMessage(String line) {
-        String msg = String.format("%s \n", line);
-        if (this.debugTextView != null){
-            this.debugTextView.append(msg);
-        }else {
-            this.debugMessages.add(msg);
+        this.debugMessages.add(
+                String.format("%s \n", line)
+        );
+        syncDebugView();
+    }
+    public void syncDebugView(){
+        if (debugTextView != null){
+            debugTextView.setText("");
+            for (String debugMessage: debugMessages) {
+                debugTextView.append(debugMessage);
+            }
         }
-
     }
 
-    private void dialogOptions(final int position) {
+    private void dialogItemOptions(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Options");
         builder.setItems(new String[]{"Connect", "Send message"}
@@ -101,9 +122,10 @@ public class WifiDirectFragment extends Fragment implements TaskObserved {
     private class ListViewOnClickItem implements AdapterView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            dialogOptions(position);
+            dialogItemOptions(position);
         }
     }
+
 
     @Override
     public void setObserver(TaskObserver observer) {

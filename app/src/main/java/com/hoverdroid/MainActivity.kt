@@ -4,6 +4,7 @@ package com.hoverdroid
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
 import android.os.IBinder
@@ -26,6 +27,7 @@ import com.wifi.listeners.SocketListener
 import com.wifi.listeners.WifiDirectListener
 import com.wifi.utils.Constants
 import com.wifi.utils.MessageUtils
+import kotlinx.android.synthetic.main.fragment_joystick.*
 
 
 class MainActivity() : AppCompatActivity(),
@@ -60,7 +62,7 @@ class MainActivity() : AppCompatActivity(),
         Manifest.permission.CAMERA
     )
 
-    private lateinit var  wifiDirectService: WifiDirectService;
+    public lateinit var  wifiDirectService: WifiDirectService;
     private var isBind:Boolean = false;
 
     private var wifiState: Int = 0
@@ -93,14 +95,20 @@ class MainActivity() : AppCompatActivity(),
         initWifi()
     }
     fun initWifi(){
-        if (wifiServiceState == 0) {
-            if (permissionManager.checkFineLocationPermission(this)) {
-                wifiDirectService.initWifiDirect();
-            } else {
-                permissionManager.requestFineLocationPermission(this)
-            }
-        }else {
+        if (permissionManager.checkFineLocationPermission(this)) {
+            wifiDirectService.initWifiDirect();
+        } else {
+            permissionManager.requestFineLocationPermission(this)
+        }
+
+    }
+
+    fun setPeers() {
+        if (wifiDirectService.deviceList == null || wifiDirectService.deviceList.size == 0 ) {
             wifiDirectService.discoverPeers()
+        }
+        else {
+            wifiFragment!!.setList(wifiDirectService.deviceList)
         }
     }
     override fun onServiceDisconnected(name: ComponentName?) {
@@ -127,7 +135,6 @@ class MainActivity() : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setIntents()
 
         ActivityCompat.requestPermissions(
             this, PERMISSIONS, PERMISSION_REQUEST_CODE
@@ -224,8 +231,6 @@ class MainActivity() : AppCompatActivity(),
                         CONTROLLER_WIFI -> {
                             supportFragmentManager.beginTransaction()
                                 .replace(R.id.controller, wifiFragment!!, "controller").commit()
-                            initWifi()
-
                         }
                     }
                 }
@@ -248,14 +253,22 @@ class MainActivity() : AppCompatActivity(),
             }
             WifiDirectFragment.EVENT_WIFI_DIRECT_CONNECT -> {
                 wifiFragment?.addDebugMessage("Connection Attempt")
+                if (arg is WifiP2pConfig){
+                    wifiDirectService.connectToDevice(arg)
+                }
             }
             Constants.EVENT_WIFI_CONNECTION_SUCCESS -> {
-                wifiFragment?.addDebugMessage("Connection Success")
                 wifiServiceState = 1
-                wifiDirectService.discoverPeers()
             }
             Constants.EVENT_WIFI_CONNECTION_FAILURE -> {
                 wifiFragment?.addDebugMessage("Connection Failure")
+            }
+
+            Constants.EVENT_WIFI_DISCOVERY_STARTED -> {
+                wifiFragment?.addDebugMessage("Discovering Peers Start")
+            }
+            Constants.EVENT_WIFI_DISCOVERY_STOPPED -> {
+                wifiFragment?.addDebugMessage("Discovering Peers Stopped")
             }
 
             PermissionManager.EVENT_PERMISSION_GRANTED -> {
