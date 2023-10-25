@@ -65,4 +65,15 @@ public class HoverboardCommand {
         return command;
     }
 
+    public static HoverboardCommand commandFromBytes( byte[] bytes) {
+        HoverboardCommand command = new HoverboardCommand();
+        int frame =  ByteUtils.bytesToUnsignedInt(new byte[]{ bytes[0],bytes[1]});
+        int speed =  ByteUtils.bytesToUnsignedInt(new byte[]{ bytes[2],bytes[3]});
+        int steer =  ByteUtils.bytesToUnsignedInt(new byte[]{ bytes[4],bytes[5]});
+        command.setFrame(frame);
+        command.setSpeed(speed);
+        command.setSteer(steer);
+        return command;
+    }
+
 }

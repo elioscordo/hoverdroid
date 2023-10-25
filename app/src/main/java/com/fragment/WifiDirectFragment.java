@@ -1,19 +1,15 @@
 package com.fragment;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,8 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.core.TaskObserved;
 import com.core.TaskObserver;
-import com.hoverboard.HoverboardCommand;
-import com.hoverdroid.MainActivity;
+import com.hoverdroid.TalkieActivity;
 import com.hoverdroid.R;
 import com.wifi.DeviceAdapter;
 
@@ -69,7 +64,7 @@ public class WifiDirectFragment extends Fragment implements TaskObserved {
             builder.setItems(new String[]{"Restart Discovery"}
                     , (dialog, which) -> {
                         if (which == 0) {
-                            ((MainActivity)observer).wifiDirectService.discoverPeers();
+                            Log.d("ciao","ciao");
                         }
                     }
             );
